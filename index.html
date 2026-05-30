@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffcc4d" />
+    <title>兒童時間積木 Time Blocks</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+
+    <main class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Time Blocks</p>
+          <h1>兒童時間積木</h1>
+          <p class="subtitle">把今天的事情排成一條彩色積木路。</p>
+        </div>
+
+        <section class="score-card" aria-label="今日完成分數">
+          <div class="score-row">
+            <span>今日分數</span>
+            <strong id="scoreText">0 分</strong>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+          <p id="scoreHint">先把積木放進今日時間表吧。</p>
+        </section>
+      </header>
+
+      <section class="controls-bar" aria-label="時間表狀態">
+        <div class="day-range">
+          <span>起床 07:00</span>
+          <span>睡覺 20:30</span>
+          <span id="capacityText">已安排 0 / 810 分鐘</span>
+        </div>
+        <button id="lockButton" class="primary-action" type="button">
+          鎖定 / 開始執行
+        </button>
+      </section>
+
+      <section class="workspace" aria-label="時間積木工作區">
+        <aside class="panel task-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Task Pool</p>
+              <h2>任務池</h2>
+            </div>
+          </div>
+
+          <form id="taskForm" class="task-form">
+            <label>
+              任務名稱
+              <input
+                id="taskName"
+                type="text"
+                maxlength="20"
+                placeholder="例如：閱讀"
+              />
+            </label>
+            <label>
+              需要時間
+              <input
+                id="taskMinutes"
+                type="number"
+                min="5"
+                max="810"
+                step="5"
+                placeholder="分鐘"
+              />
+            </label>
+            <button type="submit">新增積木</button>
+          </form>
+
+          <div id="taskPool" class="block-list" aria-live="polite"></div>
+        </aside>
+
+        <section class="panel timeline-panel">
+          <div class="panel-heading timeline-heading">
+            <div>
+              <p class="eyebrow">Today</p>
+              <h2>今日時間表</h2>
+            </div>
+            <button id="resetButton" class="ghost-action" type="button">
+              清空時間表
+            </button>
+          </div>
+
+          <div class="timeline-wrap">
+            <div id="timeLabels" class="time-labels" aria-hidden="true"></div>
+            <div
+              id="timeline"
+              class="timeline"
+              aria-label="今日時間表，總容量 810 分鐘"
+            ></div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

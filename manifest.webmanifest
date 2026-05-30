@@ -1,0 +1,16 @@
+{
+  "name": "兒童時間積木 Time Blocks",
+  "short_name": "時間積木",
+  "description": "幫助兒童練習安排日常時間的互動式 PWA。",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fffaf0",
+  "theme_color": "#ffcc4d",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
