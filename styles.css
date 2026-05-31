@@ -7,7 +7,7 @@
   --ink: #253047;
   --paper: #fffaf0;
   --line: rgba(37, 48, 71, 0.14);
-  --timeline-height: 940px;
+  --timeline-height: 1880px;
   font-family:
     "Nunito", "Trebuchet MS", "Microsoft JhengHei", system-ui, sans-serif;
 }
@@ -303,12 +303,12 @@ h2 {
 .time-block strong {
   display: block;
   overflow-wrap: anywhere;
-  font-size: 1.1rem;
+  font-size: 16px;
   line-height: 1.1;
 }
 
 .time-block .block-minutes {
-  font-size: 0.85rem;
+  font-size: 14px;
   font-weight: 1000;
   background: rgba(0, 0, 0, 0.12);
   padding: 2px 8px;
@@ -382,11 +382,11 @@ h2 {
 }
 
 .timeline .time-block strong {
-  font-size: 1rem;
+  font-size: 16px;
 }
 
 .timeline .time-block .block-time-range {
-  font-size: 0.78rem;
+  font-size: 14px;
   font-weight: 800;
   opacity: 0.7;
   white-space: nowrap;
@@ -515,7 +515,7 @@ h2 {
 /* ── Responsive ── */
 @media (max-width: 860px) {
   :root {
-    --timeline-height: 700px;
+    --timeline-height: 1400px;
   }
 
   .hero,
@@ -539,7 +539,7 @@ h2 {
 
 @media (max-width: 540px) {
   :root {
-    --timeline-height: 560px;
+    --timeline-height: 1120px;
   }
 
   .app-shell {

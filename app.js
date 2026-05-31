@@ -11,6 +11,14 @@
     "#ff9f43",
   ];
 
+  // 依照時間長度決定積木顏色
+  function colorByMinutes(minutes) {
+    if (minutes <= 30) return "#67c7ff"; // 藍色：30 分鐘以內
+    if (minutes <= 60) return "#46d6a7"; // 綠色：31-60 分鐘
+    if (minutes <= 90) return "#ffcc4d"; // 黃色：61-90 分鐘
+    return "#ff6f61"; // 紅色：91 分鐘以上
+  }
+
   const state = {
     tasks: [
       {
@@ -18,15 +26,21 @@
         name: "早餐",
         minutes: 30,
         fixed: true,
-        color: colors[3],
+        color: colorByMinutes(30),
       },
-      { id: "lunch", name: "午餐", minutes: 60, fixed: true, color: colors[2] },
+      {
+        id: "lunch",
+        name: "午餐",
+        minutes: 60,
+        fixed: true,
+        color: colorByMinutes(60),
+      },
       {
         id: "dinner",
         name: "晚餐",
         minutes: 60,
         fixed: true,
-        color: colors[0],
+        color: colorByMinutes(60),
       },
     ],
     timeline: [],
@@ -343,7 +357,7 @@
       name: name,
       minutes: Math.round(minutes),
       fixed: false,
-      color: colors[state.tasks.length % colors.length],
+      color: colorByMinutes(Math.round(minutes)),
     });
     taskForm.reset();
     render();
@@ -383,36 +397,140 @@
 
   function launchConfetti() {
     resizeConfettiCanvas();
-    var pieces = Array.from({ length: 120 }, function () {
-      return {
-        x: Math.random() * window.innerWidth,
-        y: -20 - Math.random() * window.innerHeight * 0.3,
-        size: 7 + Math.random() * 10,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        speed: 2.2 + Math.random() * 4,
-        spin: Math.random() * Math.PI,
-        drift: -1.8 + Math.random() * 3.6,
-      };
-    });
+    var W = window.innerWidth;
+    var H = window.innerHeight;
+    var fireworkColors = [
+      "#ff6f61",
+      "#67c7ff",
+      "#46d6a7",
+      "#ffcc4d",
+      "#b980ff",
+      "#ff9f43",
+      "#ff4da6",
+      "#00e5ff",
+    ];
+    var rockets = [];
+    var particles = [];
+    var sparkles = [];
+
+    // 發射多波煙火
+    function spawnRocket() {
+      rockets.push({
+        x: W * 0.15 + Math.random() * W * 0.7,
+        y: H,
+        targetY: H * 0.15 + Math.random() * H * 0.35,
+        speed: 4 + Math.random() * 3,
+        color:
+          fireworkColors[Math.floor(Math.random() * fireworkColors.length)],
+        trail: [],
+      });
+    }
+
+    // 爆炸產生粒子
+    function explode(x, y, color) {
+      var count = 60 + Math.floor(Math.random() * 40);
+      for (var i = 0; i < count; i++) {
+        var angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.3;
+        var speed = 1.5 + Math.random() * 4;
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 1,
+          decay: 0.008 + Math.random() * 0.012,
+          color: color,
+          size: 2 + Math.random() * 2.5,
+        });
+      }
+      // 中心閃光
+      sparkles.push({ x: x, y: y, life: 1, size: 30 + Math.random() * 20 });
+    }
+
+    // 分批發射
+    var launchTimes = [];
+    for (var i = 0; i < 8; i++) {
+      launchTimes.push(i * 350 + Math.random() * 200);
+    }
+
     var start = performance.now();
+    var duration = 4500;
 
     function frame(now) {
-      confettiCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      pieces.forEach(function (p) {
-        p.y += p.speed;
-        p.x += p.drift;
-        p.spin += 0.12;
-        confettiCtx.save();
-        confettiCtx.translate(p.x, p.y);
-        confettiCtx.rotate(p.spin);
-        confettiCtx.fillStyle = p.color;
-        confettiCtx.fillRect(-p.size / 2, -p.size / 3, p.size, p.size * 0.66);
-        confettiCtx.restore();
-      });
-      if (now - start < 2800) {
+      var elapsed = now - start;
+      confettiCtx.globalCompositeOperation = "source-over";
+      confettiCtx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      confettiCtx.fillRect(0, 0, W, H);
+      confettiCtx.globalCompositeOperation = "lighter";
+
+      // 發射煙火
+      for (var i = launchTimes.length - 1; i >= 0; i--) {
+        if (elapsed >= launchTimes[i]) {
+          spawnRocket();
+          launchTimes.splice(i, 1);
+        }
+      }
+
+      // 更新火箭
+      for (var r = rockets.length - 1; r >= 0; r--) {
+        var rk = rockets[r];
+        rk.y -= rk.speed;
+        rk.trail.push({ x: rk.x, y: rk.y });
+        if (rk.trail.length > 8) rk.trail.shift();
+        // 畫尾跡
+        for (var t = 0; t < rk.trail.length; t++) {
+          var alpha = (t / rk.trail.length) * 0.6;
+          confettiCtx.beginPath();
+          confettiCtx.arc(rk.trail[t].x, rk.trail[t].y, 2, 0, Math.PI * 2);
+          confettiCtx.fillStyle = "rgba(255,255,200," + alpha + ")";
+          confettiCtx.fill();
+        }
+        if (rk.y <= rk.targetY) {
+          explode(rk.x, rk.y, rk.color);
+          rockets.splice(r, 1);
+        }
+      }
+
+      // 更新粒子
+      for (var p = particles.length - 1; p >= 0; p--) {
+        var pt = particles[p];
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+        pt.vy += 0.04; // 重力
+        pt.vx *= 0.985;
+        pt.vy *= 0.985;
+        pt.life -= pt.decay;
+        if (pt.life <= 0) {
+          particles.splice(p, 1);
+          continue;
+        }
+        confettiCtx.beginPath();
+        confettiCtx.arc(pt.x, pt.y, pt.size * pt.life, 0, Math.PI * 2);
+        confettiCtx.fillStyle = pt.color;
+        confettiCtx.globalAlpha = pt.life;
+        confettiCtx.fill();
+        confettiCtx.globalAlpha = 1;
+      }
+
+      // 中心閃光
+      for (var s = sparkles.length - 1; s >= 0; s--) {
+        var sp = sparkles[s];
+        sp.life -= 0.04;
+        if (sp.life <= 0) {
+          sparkles.splice(s, 1);
+          continue;
+        }
+        confettiCtx.beginPath();
+        confettiCtx.arc(sp.x, sp.y, sp.size * sp.life, 0, Math.PI * 2);
+        confettiCtx.fillStyle = "rgba(255,255,255," + sp.life * 0.7 + ")";
+        confettiCtx.fill();
+      }
+
+      if (elapsed < duration || particles.length > 0) {
         requestAnimationFrame(frame);
       } else {
-        confettiCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        confettiCtx.globalCompositeOperation = "source-over";
+        confettiCtx.clearRect(0, 0, W, H);
       }
     }
     requestAnimationFrame(frame);
